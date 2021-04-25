@@ -27,7 +27,9 @@ class Patient(models.Model):
     REQUIREMENTS = (
         ('O2', 'Oxygen'),
         ('ICU', 'ICU'),
-        ('BED', 'Normal Bed'),
+        ('BED', 'Normal Hospital Bed'),
+        ('REM', 'Remdesivir'),
+        ('CLN', 'Clinic')
     )
     OTHER_COMPLICATIONS = (
         ('Y', 'Yes'),
@@ -45,7 +47,7 @@ class Patient(models.Model):
     city = models.CharField(choices=CITIES, default='MUM',
                             max_length=3, verbose_name='City Name')
     phone = PhoneNumberField()
-    email = models.EmailField(max_length=254, verbose_name='e-mail id')
+    email = models.EmailField(verbose_name="email id", max_length=254)
     results = models.CharField(
         verbose_name='COVID Test Results', max_length=2, default='D')
     oxygen_level = models.IntegerField(verbose_name='Oxygen Level', validators=[
@@ -55,6 +57,7 @@ class Patient(models.Model):
     morbidities = models.CharField(
         verbose_name='Other Complications', choices=OTHER_COMPLICATIONS, max_length=1)
     vaccination_does = models.IntegerField(choices=DOSES, default=0)
+    timestamp = models.DateTimeField(auto_now=True)
 
 
 class Institution(models.Model):
@@ -66,10 +69,11 @@ class Institution(models.Model):
         ('KOL', 'Kolkata'),
     )
     TYPE = (
-        ('H', 'Hospital'),
-        ('C', 'Clinic'),
-        ('O', 'Oxygen Supplier'),
-        ('I', 'Hospital with ICU'),
+        ('O2', 'Oxygen'),
+        ('ICU', 'ICU'),
+        ('BED', 'Normal Hospital Bed'),
+        ('REM', 'Remdesivir'),
+        ('CLN', 'Clinic')
     )
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
@@ -78,7 +82,25 @@ class Institution(models.Model):
     city = models.CharField(choices=CITIES, default='MUM',
                             max_length=3, verbose_name='City Name')
     phone = PhoneNumberField()
-    email = models.EmailField(max_length=254, verbose_name='e-mail id')
-    type = models.CharField(choices=TYPE, max_length=1,
-                            verbose_name='Type of Facility', default='H')
-    waitlist = models.IntegerField(verbose_name='People in Waiting')
+    email = models.EmailField(verbose_name="email id", max_length=254)
+    type_institute = models.CharField(choices=TYPE, max_length=3,
+                                      verbose_name='Type of Facility', default='BED')
+    available = models.IntegerField(
+        verbose_name='Number of utilities avaialable')
+
+
+class PatientFiles(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id_proof = models.FileField(
+        verbose_name="ID Proof", upload_to='identification/')
+    covid_report = models.FileField(
+        verbose_name="COVID Report", upload_to='covid_report/')
+    oxymeter_img = models.ImageField(
+        verbose_name="Oxygen Level Proof", upload_to='oxygen/')
+    other_reports = models.FileField(
+        verbose_name="Other Reports", upload_to='reports/')
+
+
+class Application(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    institute = models.ForeignKey(Institution, on_delete=models.CASCADE)
