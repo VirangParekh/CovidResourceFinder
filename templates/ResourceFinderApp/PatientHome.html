@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+<h1>Patient Home</h1>
+
+<h2>You searched for {{ requirement }}</h2>
+
+<table style="border: 3px">
+  <tr>
+    <th>Name of Institution</th>
+    <th>Phone</th>
+    <th>Email</th>
+    <th>Available Resources</th>
+  </tr>
+  {% for i in available %}
+  <tr>
+    <td>{{ i.institute_name }}</td>
+    <td>{{ i.phone }}</td>
+    <td>{{ i.email }}</td>
+    <td>{{ i.available }}</td>
+  </tr>
+  {% endfor %}
+</table>
